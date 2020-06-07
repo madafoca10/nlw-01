@@ -25,8 +25,8 @@ interface Point{
 };
 
 interface Params{
-  uf: string;
   city: string;
+  uf: string;
 };
 
 const Points = () => {
@@ -63,9 +63,9 @@ const Points = () => {
   useEffect(() =>{
     api.get('points', {
       params: {
-        city: 'São José dos Campos',
-        uf: 'SP', //routeParams.uf,
-        items: selectedItems
+        city: routeParams.city,//'São José dos Campos',
+        uf: routeParams.uf, //'SP',
+        items: selectedItems //[1,5,6]
       }
     }).then(response => {
       setPoints(response.data);
@@ -102,13 +102,18 @@ const Points = () => {
             {startPosition[0] !== 0 && (
               <MapView
                 style={styles.map}
-                initialRegion={{latitude: startPosition[0], longitude: startPosition[1], latitudeDelta:0.014, longitudeDelta:0.014}}>
+                initialRegion={{
+                  latitude: -23.2221155,//startPosition[0],
+                  longitude: -45.9044355,//startPosition[1],
+                  latitudeDelta:0.014,
+                  longitudeDelta:0.014}}
+              >
                 {points.map(point => (
                   <Marker
                     key={String(point.id)}
                     style={styles.mapMarker}
                     onPress={() => handleNavigateToDetail(point.id)}
-                    coordinate={{latitude:point.latitude, longitude:point.longitude}}>
+                    coordinate={{latitude: Number(point.latitude), longitude: Number(point.longitude)}}>
                     <View style={styles.mapMarkerContainer}>
                       <Image
                         style={styles.mapMarkerImage}

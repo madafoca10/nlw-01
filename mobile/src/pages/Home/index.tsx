@@ -6,7 +6,8 @@ import { useNavigation } from '@react-navigation/native';
 import { Feather as Icon } from '@expo/vector-icons';
 import { Chevron } from 'react-native-shapes';
 import axios from 'axios';
-import Picker from 'react-native-picker-select';
+
+import styles from './styles'
 
 interface IBGEUFResponse {
   sigla: string;
@@ -17,21 +18,13 @@ interface IBGECityResponse {
 }
 
 const Home = () => {  
-    const navigation = useNavigation();
-    const [ufs, setUfs] = useState<string[]>([]);
-    const [city, setCity] = useState<string[]>([]);
-    const [selectedUf, setSelectedUf] = useState(null);
-    const [selectedCity, setSelectedCity] = useState(null);
+  const navigation = useNavigation();
+  const [ufs, setUfs] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedUf, setSelectedUf] = useState(null);
+  const [selectedCity, setSelectedCity] = useState(null);
  
     function handleNavigateToPoints(){
-      if (!selectedUf){
-        alert ('Selecione uma UF.');
-        return;
-      };
-      if (!selectedCity){
-        alert ('Selecione uma cidade.');
-        return;
-      };
 
       navigation.navigate('Points', {
         uf: selectedUf,
@@ -50,27 +43,25 @@ const Home = () => {
     }, []);
 
   useEffect(()=>{
-      if(selectedUf==='0'){
-          return;
-      }
       axios
           .get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUf}/municipios?orderBy=nome`)
           .then(response => {
+
           const city  = response.data.map(city => city.nome)
-          setCity(city);
+
+          setCities(city);
       })
   
   }, [selectedUf]);
 
-  //function handleSelectedUf(event: ChangeEvent<HTMLSelectElement>){
-  //    const uf = event.target.value;
-  //    setSelectedUf(uf);
-  //};
 
-  //function handleSelectedCity(event: ChangeEvent<HTMLSelectElement>){
-  //    const city = event.target.value;
-  //    setSelectedCity(city);
-  //};
+  function handleSelectedUf(uf){
+      setSelectedUf(uf);
+  };
+
+  function handleSelectedCity(city){
+      setSelectedCity(city);
+  };
 
     return (
       <ImageBackground 
@@ -89,24 +80,23 @@ const Home = () => {
                 useNativeAndroidPickerStyle={false}
                 style={pickerSelectStyles}
                 Icon={() => {return <Chevron size={1.5} color="#A0A0B2" />;}}      
-                onValueChange={(value) => setSelectedUf(value)}
-                items={[
-                  {label: 'SP', value: 'SP'},
-                ]}
+                onValueChange={handleSelectedUf}
+                items={ufs.map(uf=>{return{label: uf, value: uf}})}
               />
-              <PickerSelect
+              <PickerSelect key="cidade"
                 placeholder={{
                   label: 'Selecione uma cidade',
                   value: null}}
                   useNativeAndroidPickerStyle={false}
                   style={pickerSelectStyles}
                   Icon={() => {return <Chevron size={1.5} color="#A0A0B2" />;}}      
-                  onValueChange={(value) => setSelectedCity(value)}
-                  items={[
-                    {label: 'Caçapava', value: 'Caçapava'},
-                    {label: 'Jacareí', value: 'Jacareí'},
-                    {label: 'São José dos Campos', value: 'São José dos Campos'}]}/>
-              <RectButton style={styles.button} onPress={handleNavigateToPoints}>
+                  onValueChange={handleSelectedCity}
+                  items={cities.map(city=>{return{label: city, value: city}})}
+              />
+              <RectButton
+                style={[styles.button, selectedCity !== null && selectedUf !== null? null : styles.buttonDisabled]}
+                enabled={selectedCity !== null && selectedUf !== null}
+                onPress={handleNavigateToPoints}>
                   <View style={styles.buttonIcon}>
                       <Icon name="arrow-right" color="#fff" size={24}/>
                   </View>
@@ -119,8 +109,6 @@ const Home = () => {
     )
 
 };
-//home-background.png
-//logo.png
 
 const pickerSelectStyles = StyleSheet.create({
   inputIOS: {
@@ -150,62 +138,4 @@ const pickerSelectStyles = StyleSheet.create({
   iconContainer: {top: 25, right: 30},
 });
 
-const styles = StyleSheet.create({
-    container: {
-      flex: 1,
-      padding: 32,
-    },
-  
-    main: {
-      flex: 1,
-      justifyContent: 'center',
-    },
-  
-    title: {
-      color: '#322153',
-      fontSize: 32,
-      fontFamily: 'Ubuntu_700Bold',
-      maxWidth: 300,
-      marginTop: 64,
-    },
-  
-    description: {
-      color: '#6C6C80',
-      fontSize: 16,
-      marginTop: 16,
-      fontFamily: 'Roboto_400Regular',
-      maxWidth: 300,
-      lineHeight: 24,
-    },
-  
-    footer: {},
-  
-    button: {
-      backgroundColor: '#34CB79',
-      height: 60,
-      flexDirection: 'row',
-      borderRadius: 10,
-      overflow: 'hidden',
-      alignItems: 'center',
-      marginTop: 8,
-    },
-  
-    buttonIcon: {
-      height: 60,
-      width: 60,
-      backgroundColor: 'rgba(0, 0, 0, 0.1)',
-      justifyContent: 'center',
-      alignItems: 'center'
-    },
-  
-    buttonText: {
-      flex: 1,
-      justifyContent: 'center',
-      textAlign: 'center',
-      color: '#FFF',
-      fontFamily: 'Roboto_500Medium',
-      fontSize: 16,
-    }
-  });
-
-  export default Home;
+export default Home;
