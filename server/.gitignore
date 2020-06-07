@@ -1,0 +1,7 @@
+node_modules
+uploads/*
+!uploads/.gitkeep
+!uploads/points/.gitkeep
+!uploads/items/.gitkeep
+
+*.sqlite
