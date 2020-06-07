@@ -3,5 +3,6 @@ uploads/*
 !uploads/.gitkeep
 !uploads/points/.gitkeep
 !uploads/items/.gitkeep
+uploads/*
 
 *.sqlite
